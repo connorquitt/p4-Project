@@ -4,43 +4,45 @@ import Navbar from './Navbar';
 import Employees from './Employees';
 import Reviews from './Reviews';
 import Projects from './Projects';
+import '../index.css';
 
 const App = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [activePage, setActivePage] = useState('employees');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activePage, setActivePage] = useState('employees');
 
-    const handleLogin = (username, password) => {
-        // Implement actual login logic here (e.g., authentication API call)
-        if (username === 'admin' && password === 'password') {
-            setIsLoggedIn(true);
-        } else {
-            alert('Invalid username or password');
-        }
-    };
+  const handleLogin = (username, password) => {
+    //do actual login here omg
+    if (username === 'admin' && password === 'password') {
+      setIsLoggedIn(true);
+    } else {
+      alert('Invalid username or password');
+    }
+  };
 
-    const renderPage = () => {
-        if (!isLoggedIn) {
-            return <Login handleLogin={handleLogin} />;
-        }
+  const renderPage = () => {
+    if (!isLoggedIn) {
+      return <Login handleLogin={handleLogin} />;
+    }
 
-        switch (activePage) {
-            case 'employees':
-                return <Employees />;
-            case 'reviews':
-                return <Reviews />;
-            case 'projects':
-                return <Projects />;
-            default:
-                return null;
-        }
-    };
+    switch (activePage) {
+      case 'employees':
+        return <Employees />;
+      case 'reviews':
+        //return <Reviews />;
+        return <Login />
+      case 'projects':
+        return <Projects />;
+      default:
+        return null;
+    }
+  };
 
-    return (
-        <div className="App">
-            <Navbar setActivePage={setActivePage} />
-            {renderPage()}
-        </div>
-    );
+  return (
+    <div className="App">
+      <Navbar setActivePage={setActivePage} />
+      {renderPage()}
+    </div>
+  );
 };
 
 export default App;
