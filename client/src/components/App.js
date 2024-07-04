@@ -1,8 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { Switch, Route } from "react-router-dom";
+import React, { useState } from 'react';
+import Login from './Login';
+import Navbar from './Navbar';
+import Employees from './Employees';
+import Reviews from './Reviews';
+import Projects from './Projects';
 
-function App() {
-  return <h1>Project Client</h1>;
-}
+const App = () => {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [activePage, setActivePage] = useState('employees');
+
+    const handleLogin = (username, password) => {
+        // Implement actual login logic here (e.g., authentication API call)
+        if (username === 'admin' && password === 'password') {
+            setIsLoggedIn(true);
+        } else {
+            alert('Invalid username or password');
+        }
+    };
+
+    const renderPage = () => {
+        if (!isLoggedIn) {
+            return <Login handleLogin={handleLogin} />;
+        }
+
+        switch (activePage) {
+            case 'employees':
+                return <Employees />;
+            case 'reviews':
+                return <Reviews />;
+            case 'projects':
+                return <Projects />;
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <div className="App">
+            <Navbar setActivePage={setActivePage} />
+            {renderPage()}
+        </div>
+    );
+};
 
 export default App;
