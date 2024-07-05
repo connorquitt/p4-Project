@@ -1,17 +1,18 @@
-#!/usr/bin/env python3
+from flask import Flask, request, make_response, jsonify
+from flask_cors import CORS
+from flask_migrate import Migrate
 
-# Standard library imports
+from models import db, Employee, Meeting, Project, Assignment, employee_meetings, Review, Manager
 
-# Remote library imports
-from flask import request
-from flask_restful import Resource
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.json.compact = False
 
-# Local imports
-from config import app, db, api
-# Add your model imports
+CORS(app)
+migrate = Migrate(app, db)
 
-
-# Views go here!
+db.init_app(app)
 
 @app.route('/')
 def index():

@@ -1,6 +1,6 @@
 import datetime
 from app import app
-from models import db, Employee, Meeting, Project, Assignment, employee_meetings
+from models import db, Employee, Meeting, Project, Assignment, employee_meetings, Review, Manager
 
 with app.app_context():
 
@@ -8,16 +8,45 @@ with app.app_context():
     db.session.query(employee_meetings).delete()
     db.session.commit()
     Employee.query.delete()
+    Review.query.delete()
     Meeting.query.delete()
     Project.query.delete()
     Assignment.query.delete()
+    Manager.query.delete()
+
+
+     # Add managers
+    mg1 = Manager(name = 'Trooper Wright', position = 'Installation Manager')
+    mg2 = Manager(name = 'Brant Boisvert', position = 'Sound & Lighting Manager')
+    mg3 = Manager(name = 'Josh Burkhaulter', position = 'Programming Manager')
+    db.session.add_all([mg1, mg2, mg3])
+    db.session.commit()
 
     # Add employees
-    e1 = Employee(name="Uri Lee", hire_date=datetime.datetime(2022, 5, 17))
-    e2 = Employee(name="Tristan Tal", hire_date=datetime.datetime(2020, 1, 30))
-    e3 = Employee(name="Sasha Hao", hire_date=datetime.datetime(2021, 12, 1))
-    e4 = Employee(name="Taylor Jai", hire_date=datetime.datetime(2015, 1, 2))
+    e1 = Employee(name="Uri Lee", hire_date=datetime.datetime(2022, 5, 17), manager=mg1)
+    e2 = Employee(name="Tristan Tal", hire_date=datetime.datetime(2020, 1, 30), manager=mg1)
+    e3 = Employee(name="Sasha Hao", hire_date=datetime.datetime(2021, 12, 1), manager=mg3)
+    e4 = Employee(name="Taylor Jai", hire_date=datetime.datetime(2015, 1, 2), manager=mg2)
     db.session.add_all([e1, e2, e3, e4])
+    db.session.commit()
+
+    # 1..many relationship between Manager and Employees
+
+
+     # 1..many relationship between Employee and Review
+    uri_2023 = Review(year=2023,
+                      summary="Great web developer!",
+                      employee=e1)
+    tristan_2021 = Review(year=2021,
+                          summary="Good coding skills, often late to work",
+                          employee=e2)
+    tristan_2022 = Review(year=2022,
+                          summary="Strong coding skills, takes long lunches",
+                          employee=e2)
+    tristan_2023 = Review(year=2023,
+                          summary="Awesome coding skills, dedicated worker",
+                          employee=e2)
+    db.session.add_all([uri_2023, tristan_2021, tristan_2022, tristan_2023])
     db.session.commit()
 
     # Add meetings

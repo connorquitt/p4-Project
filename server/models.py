@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
+from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 
 metadata = MetaData(naming_convention={
@@ -25,6 +26,14 @@ class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     hire_date = db.Column(db.Date)
+
+    manager_id = db.Column(db.Integer, db.ForeignKey('managers.id'))
+
+    # Relationship mapping the employee to related manager
+    manager = db.relationship('Manager', back_populates='employees')
+    
+    # Relationship mapping the employee to related reviews
+    reviews = db.relationship('Review', back_populates='employee')
 
     # Relationship mapping the employee to related meetings
     meetings = db.relationship(
@@ -98,3 +107,33 @@ class Assignment(db.Model):
 
     def __repr__(self):
         return f'<Assignment {self.id}, {self.role}, {self.start_date}, {self.end_date}, {self.employee.name}, {self.project.title}>'
+    
+    
+class Review(db.Model):
+    __tablename__ = 'reviews'
+
+    id = db.Column(db.Integer, primary_key=True)
+    year = db.Column(db.Integer)
+    summary = db.Column(db.String)
+    # Foreign key stores the Employee id
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
+
+    # Relationship mapping the review to related employee
+    employee = db.relationship('Employee', back_populates="reviews")
+
+    def __repr__(self):
+        return f'<Review {self.id}, {self.year}, {self.summary}>'
+
+class Manager(db.Model):
+    __tablename__ = 'managers'
+
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String, nullable = False)
+    position = db.Column(db.String, nullable = False)
+
+    employees = db.relationship('Employee', back_populates='manager')
+
+    def __repr__(self):
+        return f'<Manager {self.id}, {self.name}, {self.position}>'
+
+    
