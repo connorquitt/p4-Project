@@ -20,8 +20,10 @@ employee_meetings = db.Table(
 )
 
 
-class Employee(db.Model):
+class Employee(db.Model, SerializerMixin):
     __tablename__ = 'employees'
+
+    serialize_rules = ('-reviews.employee', '-meetings.employees', '-assignments.employee')
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -36,23 +38,22 @@ class Employee(db.Model):
     reviews = db.relationship('Review', back_populates='employee')
 
     # Relationship mapping the employee to related meetings
-    meetings = db.relationship(
-        'Meeting', secondary=employee_meetings, back_populates='employees')
+    meetings = db.relationship('Meeting', secondary=employee_meetings, back_populates='employees')
 
     # Relationship mapping the employee to related assignments
-    assignments = db.relationship(
-        'Assignment', back_populates='employee', cascade='all, delete-orphan')
+    assignments = db.relationship('Assignment', back_populates='employee', cascade='all, delete-orphan')
 
     # Association proxy to get projects for this employee through assignments
-    projects = association_proxy('assignments', 'project',
-                                 creator=lambda project_obj: Assignment(project=project_obj))
+    #projects = association_proxy('assignments', 'project', creator=lambda project_obj: Assignment(project=project_obj))
 
     def __repr__(self):
         return f'<Employee {self.id}, {self.name}, {self.hire_date}>'
 
 
-class Meeting(db.Model):
+class Meeting(db.Model, SerializerMixin):
     __tablename__ = 'meetings'
+
+    serialize_rules = ('-employees.meetings',)
 
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String)
@@ -87,8 +88,11 @@ class Project(db.Model):
 
 
 # Association Model to store many-to-many relationship with attributes between employee and project
-class Assignment(db.Model):
+class Assignment(db.Model, SerializerMixin):
     __tablename__ = 'assignments'
+
+    serialize_only = ('role',)
+
 
     id = db.Column(db.Integer, primary_key=True)
     role = db.Column(db.String)
@@ -106,11 +110,13 @@ class Assignment(db.Model):
     project = db.relationship('Project', back_populates='assignments')
 
     def __repr__(self):
-        return f'<Assignment {self.id}, {self.role}, {self.start_date}, {self.end_date}, {self.employee.name}, {self.project.title}>'
+        return f'<Assignment {self.id}, {self.role}, {self.start_date}, {self.end_date}>'
     
     
-class Review(db.Model):
+class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
+
+    serialize_rules = ('-employee.reviews',)
 
     id = db.Column(db.Integer, primary_key=True)
     year = db.Column(db.Integer)
@@ -124,8 +130,10 @@ class Review(db.Model):
     def __repr__(self):
         return f'<Review {self.id}, {self.year}, {self.summary}>'
 
-class Manager(db.Model):
+class Manager(db.Model, SerializerMixin):
     __tablename__ = 'managers'
+
+    serialize_only = ('name', 'position',)
 
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String, nullable = False)
