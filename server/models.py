@@ -27,7 +27,7 @@ class Employee(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
-    hire_date = db.Column(db.Date)
+    hire_date = db.Column(db.Date, nullable=True)
 
     manager_id = db.Column(db.Integer, db.ForeignKey('managers.id'))
 
@@ -68,7 +68,7 @@ class Meeting(db.Model, SerializerMixin):
         return f'<Meeting {self.id}, {self.topic}, {self.scheduled_time}, {self.location}>'
 
 
-class Project(db.Model):
+class Project(db.Model, SerializerMixin):
     __tablename__ = 'projects'
 
     id = db.Column(db.Integer, primary_key=True)
