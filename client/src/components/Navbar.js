@@ -1,16 +1,17 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import '../index.css';
 
-const Navbar = ({ setActivePage }) => {
+function NavBar({ handleLogOut }) {
     return (
-        <nav>
-            <ul>
-                <li onClick={() => setActivePage('employees')}>Employees</li>
-                <li onClick={() => setActivePage('reviews')}>Reviews</li>
-                <li onClick={() => setActivePage('projects')}>Projects</li>
-            </ul>
+        <nav className='navbar'>
+            <NavLink to='/employees'>Employees</NavLink>
+            <NavLink to='/reviews'>Reviews</NavLink>
+            <NavLink to='/projects'>Projects</NavLink>
+            <NavLink to='/managers'>Managers</NavLink>
+            <NavLink to='/login' onClick={handleLogOut}>Logout</NavLink>
         </nav>
-    );
-};
+    )
+}
 
-export default Navbar;
+export default NavBar;

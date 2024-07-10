@@ -1,40 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import Login from './Login';
 import Navbar from './Navbar';
-import Employees from './Employees';
-import Reviews from './Reviews';
-import Projects from './Projects';
+import Routes from './Routes';
 import '../index.css';
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [activePage, setActivePage] = useState('reviews');
 
   const handleLogin = (username, password) => {
-    //do actual login here omg
+    // do actual login here
     if (username === 'admin' && password === 'password') {
       setIsLoggedIn(true);
     } else {
       alert('Invalid username or password');
     }
   };
-  //set this to return http addresses not components
-  const renderPage = () => {
-    if (!isLoggedIn) {
-      return <Login handleLogin={handleLogin} />;
-    }
 
-    switch (activePage) {
-      case 'employees':
-        return <Employees />;
-      case 'reviews':
-        return <Reviews />;
-      case 'projects':
-        return <Projects />;
-      default:
-        return null;
-    }
-  };
+  function handleLogOut() {
+    setIsLoggedIn(false)
+
+}
 
   useEffect(() => {
     fetch("/")
@@ -42,12 +28,13 @@ const App = () => {
       .then((employees) => console.log(employees));
   }, []);
 
-
   return (
-    <div className="App">
-      <Navbar setActivePage={setActivePage} />
-      {renderPage()}
-    </div>
+    <Router>
+      <div className="App">
+        {isLoggedIn && <Navbar isLoggedIn={isLoggedIn} handleLogOut={handleLogOut}/>}
+        <Routes isLoggedIn={isLoggedIn} handleLogin={handleLogin} />
+      </div>
+    </Router>
   );
 };
 
