@@ -1,10 +1,10 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Login from './Login';
-import Employees from './Employees';
-import Reviews from './Reviews';
-import Projects from './Projects';
+import Employees from './EmployeeCard';
+import Meetings from './Meetings';
 import Managers from './Managers';
+import EmployeeCardList from './EmployeePage';
 
 const Routes = ({ isLoggedIn, handleLogin }) => {
   return (
@@ -13,13 +13,10 @@ const Routes = ({ isLoggedIn, handleLogin }) => {
         {isLoggedIn ? <Redirect to="/reviews" /> : <Login handleLogin={handleLogin} />}
       </Route>
       <Route path="/employees">
-        {isLoggedIn ? <Employees /> : <Redirect to="/login" />}
+        {isLoggedIn ? <EmployeeCardList /> : <Redirect to="/login" />}
       </Route>
-      <Route path="/reviews">
-        {isLoggedIn ? <Reviews /> : <Redirect to="/login" />}
-      </Route>
-      <Route path="/projects">
-        {isLoggedIn ? <Projects /> : <Redirect to="/login" />}
+      <Route path="/meetings">
+        {isLoggedIn ? <Meetings /> : <Redirect to="/login" />}
       </Route>
       <Route path="/managers">
         {isLoggedIn ? <Managers /> : <Redirect to="/login" />}

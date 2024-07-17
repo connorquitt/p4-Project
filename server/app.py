@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 
-from models import db, Employee, Meeting, Project, Assignment, employee_meetings, Review, Manager
+from models import db, Employee, Meeting, Manager
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -223,49 +223,6 @@ def review_by_id(id):
             return response
 
 
-@app.route('/projects', methods=['GET', 'POST'])
-def projects():
-    if request.method == 'GET':
-        projects = Project.query.all()
-        return make_response(
-            jsonify([project.to_dict() for project in projects]), 200
-        )
-    
-    elif request.method == 'POST':
-        new_project = Project(
-            title=request.form.get('title'),
-            budget=request.form.get('budget')
-        )
-        db.session.add(new_project)
-        db.session.commit()
-        return make_response(new_project.to_dict(), 201)
-
-@app.route('/projects/<int:id>', methods=['GET', 'PATCH', 'DELETE'])
-def projects_by_id(id):
-    project = Project.query.filter(Project.id == id).first()
-    if project is None:
-        response_body = {"message": "Project not found in our database, please try again"}
-        return make_response(response_body, 404)
-    
-    if request.method == 'GET':
-        return make_response(project.to_dict(), 200)
-        
-    elif request.method == 'PATCH':
-        for attr in request.form:
-            setattr(project, attr, request.form.get(attr))
-        db.session.add(project)
-        db.session.commit()
-        return make_response(project.to_dict(), 200)
-        
-    elif request.method == 'DELETE':
-        db.session.delete(project)
-        db.session.commit()
-        response_body = {
-            "delete_successful": True,
-            "message": "Project deleted."
-        }
-        return make_response(response_body, 200)
-
 
 @app.route('/meetings', methods=['GET', 'POST'])
 def meetings():
@@ -310,54 +267,6 @@ def meetings_by_id(id):
             "message": "Meeting deleted."
         }
         return make_response(response_body, 200)
-
-
-@app.route('/assignments', methods=['GET', 'POST'])
-def assignments():
-    if request.method == 'GET':
-        assignments = Assignment.query.all()
-        return make_response(
-            jsonify([assignment.to_dict() for assignment in assignments]), 200
-        )
-    
-    elif request.method == 'POST':
-        new_assignment = Assignment(
-            role=request.form.get('role'),
-            start_date=request.form.get('start_date'),
-            end_date=request.form.get('end_date'),
-            employee_id=request.form.get('employee_id'),
-            project_id=request.form.get('project_id')
-        )
-        db.session.add(new_assignment)
-        db.session.commit()
-        return make_response(new_assignment.to_dict(), 201)
-
-@app.route('/assignments/<int:id>', methods=['GET', 'PATCH', 'DELETE'])
-def assignments_by_id(id):
-    assignment = Assignment.query.filter(Assignment.id == id).first()
-    if assignment is None:
-        response_body = {"message": "Assignment not found in our database, please try again"}
-        return make_response(response_body, 404)
-    
-    if request.method == 'GET':
-        return make_response(assignment.to_dict(), 200)
-        
-    elif request.method == 'PATCH':
-        for attr in request.form:
-            setattr(assignment, attr, request.form.get(attr))
-        db.session.add(assignment)
-        db.session.commit()
-        return make_response(assignment.to_dict(), 200)
-        
-    elif request.method == 'DELETE':
-        db.session.delete(assignment)
-        db.session.commit()
-        response_body = {
-            "delete_successful": True,
-            "message": "Assignment deleted."
-        }
-        return make_response(response_body, 200)
-
 
 
 

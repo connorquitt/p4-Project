@@ -3,6 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import Login from './Login';
 import Navbar from './Navbar';
 import Routes from './Routes';
+import Employees from './EmployeeCard';
 import '../index.css';
 
 const App = () => {
@@ -22,11 +23,6 @@ const App = () => {
 
 }
 
-  useEffect(() => {
-    fetch("/")
-      .then((r) => r.json())
-      .then((employees) => console.log(employees));
-  }, []);
 
   return (
     <Router>
