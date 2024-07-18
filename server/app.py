@@ -2,7 +2,7 @@ from flask import Flask, request, make_response, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
-
+from datetime import datetime
 from models import db, Employee, Meeting, Manager
 
 app = Flask(__name__)
@@ -21,23 +21,21 @@ api = Api(app)
 def employees():
     if request.method == 'GET':
         employees = Employee.query.all()
-
         return make_response(
             jsonify([employee.to_dict() for employee in employees]),
             200,
         )
-    
     elif request.method == 'POST':
+        data = request.get_json()
+        hire_date = datetime.strptime(data.get('hire_date'), '%Y-%m-%d')
         new_employee = Employee(
-            name = request.form.get('name'),
-            hire_date = request.form.get('hire_date'),
-            manager_id = request.form.get('manager_id'),
+            name=data.get('name'),
+            hire_date=hire_date,
+            manager_id=data.get('manager_id'),
         )
         db.session.add(new_employee)
         db.session.commit()
-
-        response = make_response(new_employee.to_dict(), 201)
-        return response
+        return make_response(new_employee.to_dict(), 201)
 
         
     return make_response(
@@ -49,7 +47,7 @@ def employees():
 def employee_by_id(id):
     employee = Employee.query.filter(Employee.id == id).first()
     
-    if employee == None:
+    if employee is None:
         response_body = {
             "message": "This employee does not exist in our database. Please try again."
         }
@@ -61,11 +59,11 @@ def employee_by_id(id):
         return response
     
     elif request.method == 'PATCH':
-        for attr in request.form:
-            setattr(employee, attr, request.form.get(attr))
+        data = request.get_json()
+        if 'name' in data:
+            employee.name = data['name']
         db.session.add(employee)
         db.session.commit()
-
         response = make_response(employee.to_dict(), 200)
         return response
     
