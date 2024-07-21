@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from datetime import datetime
-from models import db, Employee, Meeting, Manager
+from models import db, Employee, Meeting, Manager, Review
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -36,7 +36,6 @@ def employees():
         db.session.add(new_employee)
         db.session.commit()
         return make_response(new_employee.to_dict(), 201)
-
         
     return make_response(
         jsonify({'text': 'Method not Allowed'}),
@@ -73,7 +72,7 @@ def employee_by_id(id):
 
         response_body = {
             "delete_successful": True,
-            "message": "Review deleted."
+            "message": "Employee deleted."
         }
 
         response = make_response(response_body, 200)
@@ -85,26 +84,26 @@ def managers():
         managers = Manager.query.all()
 
         return make_response(
-            jsonify([manager.to_dict for manager in managers]), 200
+            jsonify([manager.to_dict() for manager in managers]), 200
         )
     
     elif request.method == 'POST':
+        data = request.get_json()
         new_manager = Manager(
-            name=request.form.get('name'),
-            position=request.form.get('position'),
-            employees=request.form.get('employees'),
+            name=data.get('name'),
+            position=data.get('position'),
         )
 
         db.session.add(new_manager)
         db.session.commit()
 
-        return make_response(new_manager.to_dict, 201)
+        return make_response(new_manager.to_dict(), 201)
 
 @app.route('/managers/<int:id>', methods=['GET', 'PATCH', 'DELETE']) 
 def manager_by_id(id):
     manager = Manager.query.filter(Manager.id == id).first()
 
-    if manager == None:
+    if manager is None:
         response_body = {
             "message": "Manager not found in our database, please try again"
         }
@@ -116,12 +115,13 @@ def manager_by_id(id):
             return make_response(manager.to_dict(), 200)
         
         elif request.method == 'PATCH':
-            for attr in request.form:
-                setattr(manager, attr, request.form.get(attr))
+            data = request.get_json()
+            for attr, value in data.items():
+                setattr(manager, attr, value)
             db.session.add(manager)
             db.session.commit()
 
-            return make_response(manager.to_dict(), 201)
+            return make_response(manager.to_dict(), 200)
         
         elif request.method == 'DELETE':
             db.session.delete(manager)
@@ -129,13 +129,10 @@ def manager_by_id(id):
 
             response_body = {
             "delete_successful": True,
-            "message": "Review deleted."
+            "message": "Manager deleted."
         }
             return make_response(response_body, 200)
             
-                
-
-
 @app.route('/reviews', methods=['GET', 'POST'])
 def reviews():
 
@@ -147,10 +144,11 @@ def reviews():
         )
 
     elif request.method == 'POST':
+        data = request.get_json()
         new_review = Review(
-            year=request.form.get("year"),
-            summary=request.form.get("summary"),
-            employee_id=request.form.get("employee_id"),
+            year=data.get("year"),
+            summary=data.get("summary"),
+            employee_id=data.get("employee_id"),
         )
 
         db.session.add(new_review)
@@ -189,8 +187,9 @@ def review_by_id(id):
             return response
 
         elif request.method == 'PATCH':
-            for attr in request.form:
-                setattr(review, attr, request.form.get(attr))
+            data = request.get_json()
+            for attr, value in data.items():
+                setattr(review, attr, value)
 
             db.session.add(review)
             db.session.commit()
@@ -220,8 +219,6 @@ def review_by_id(id):
 
             return response
 
-
-
 @app.route('/meetings', methods=['GET', 'POST'])
 def meetings():
     if request.method == 'GET':
@@ -231,10 +228,11 @@ def meetings():
         )
     
     elif request.method == 'POST':
+        data = request.get_json()
         new_meeting = Meeting(
-            topic=request.form.get('topic'),
-            scheduled_time=request.form.get('scheduled_time'),
-            location=request.form.get('location')
+            topic=data.get('topic'),
+            scheduled_time=data.get('scheduled_time'),
+            location=data.get('location')
         )
         db.session.add(new_meeting)
         db.session.commit()
@@ -251,8 +249,9 @@ def meetings_by_id(id):
         return make_response(meeting.to_dict(), 200)
         
     elif request.method == 'PATCH':
-        for attr in request.form:
-            setattr(meeting, attr, request.form.get(attr))
+        data = request.get_json()
+        for attr, value in data.items():
+            setattr(meeting, attr, value)
         db.session.add(meeting)
         db.session.commit()
         return make_response(meeting.to_dict(), 200)
@@ -266,9 +265,5 @@ def meetings_by_id(id):
         }
         return make_response(response_body, 200)
 
-
-
-
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
-

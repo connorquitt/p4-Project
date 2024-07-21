@@ -1,28 +1,27 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Login from './Login';
-import Employees from './EmployeeCard';
-import Meetings from './Meetings';
-import Managers from './Managers';
+import MeetingPage from './MeetingPage';
+import ManagerCardList from './ManagerPage';
 import EmployeeCardList from './EmployeePage';
 
 const Routes = ({ isLoggedIn, handleLogin }) => {
   return (
     <Switch>
       <Route path="/login">
-        {isLoggedIn ? <Redirect to="/reviews" /> : <Login handleLogin={handleLogin} />}
+        {isLoggedIn ? <Redirect to="/employees" /> : <Login handleLogin={handleLogin} />}
       </Route>
       <Route path="/employees">
         {isLoggedIn ? <EmployeeCardList /> : <Redirect to="/login" />}
       </Route>
       <Route path="/meetings">
-        {isLoggedIn ? <Meetings /> : <Redirect to="/login" />}
+        {isLoggedIn ? <MeetingPage /> : <Redirect to="/login" />}
       </Route>
       <Route path="/managers">
-        {isLoggedIn ? <Managers /> : <Redirect to="/login" />}
+        {isLoggedIn ? <ManagerCardList /> : <Redirect to="/login" />}
       </Route>
       <Route path="/">
-        <Redirect to={isLoggedIn ? "/reviews" : "/login"} />
+        <Redirect to={isLoggedIn ? "/employees" : "/login"} />
       </Route>
     </Switch>
   );

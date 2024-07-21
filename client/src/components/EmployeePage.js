@@ -56,6 +56,7 @@ function EmployeeCardList() {
 
     return (
         <div>
+            <h1>Employees</h1>
             <form onSubmit={handleAddEmployee}>
                 <input
                     type="text"
