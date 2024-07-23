@@ -229,9 +229,14 @@ def meetings():
     
     elif request.method == 'POST':
         data = request.get_json()
+        try:
+            scheduled_time = datetime.fromisoformat(data.get('scheduled_time'))
+        except ValueError:
+            return make_response({"error": "Invalid datetime format"}, 400)
+
         new_meeting = Meeting(
             topic=data.get('topic'),
-            scheduled_time=data.get('scheduled_time'),
+            scheduled_time=scheduled_time,
             location=data.get('location')
         )
         db.session.add(new_meeting)
@@ -241,6 +246,7 @@ def meetings():
 @app.route('/meetings/<int:id>', methods=['GET', 'PATCH', 'DELETE'])
 def meetings_by_id(id):
     meeting = Meeting.query.filter(Meeting.id == id).first()
+    
     if meeting is None:
         response_body = {"message": "Meeting not found in our database, please try again"}
         return make_response(response_body, 404)
@@ -251,6 +257,13 @@ def meetings_by_id(id):
     elif request.method == 'PATCH':
         data = request.get_json()
         for attr, value in data.items():
+            if attr == 'scheduled_time':
+                try:
+                    # Ensure the datetime format is handled correctly
+                    value = datetime.fromisoformat(value)
+                except ValueError:
+                    response_body = {"message": "Invalid date format. Please use ISO 8601 format."}
+                    return make_response(response_body, 400)
             setattr(meeting, attr, value)
         db.session.add(meeting)
         db.session.commit()

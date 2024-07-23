@@ -1,51 +1,56 @@
 import React, { useEffect, useState } from "react";
 import Employees from "./EmployeeCard";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 function EmployeeCardList() {
     const [employeeList, setEmployeeList] = useState([]);
-    const [name, setName] = useState("");
-    const [hireDate, setHireDate] = useState("");
-    const [managerId, setManagerId] = useState("");
 
     useEffect(() => {
         fetch("/employees")
             .then((r) => r.json())
-            .then((employees) => setEmployeeList(employees));
+            .then((employees) => setEmployeeList(employees))
     }, []);
 
-    const handleAddEmployee = (e) => {
-        e.preventDefault();
-        const newEmployee = {
-            name: name,
-            hire_date: hireDate,
-            manager_id: managerId
-        };
+    const formSchema = yup.object().shape({
+        name: yup.string().required("Must enter a name").max(15),
+        hire_date: yup.date(),
+        manager_id: yup.number().positive().integer().max(2)
+    });
 
-        fetch("/employees", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newEmployee),
-        })
-        .then((response) => response.json())
-        .then((newEmployee) => {
-            setEmployeeList([...employeeList, newEmployee]);
-            setName("");
-            setHireDate("");
-            setManagerId("");
-        });
-    };
+    const formik = useFormik({
+        initialValues: {
+            name: "",
+            hire_date: "",
+            manager_id: "",
+        },
+        validationSchema: formSchema,
+        onSubmit: (values) => {
+            fetch("/employees", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values, null, 2),
+            })
+            .then((res) => res.json())
+            .then((newEmployee) => {
+                setEmployeeList([...employeeList, newEmployee]);
+                if (newEmployee.id) {
+                    console.log(newEmployee.id);
+                }
+            });
+        },
+    });
 
     const handleDeleteEmployee = (id) => {
+        console.log(`Attempting to delete employee with id: ${id}`);
         fetch(`/employees/${id}`, {
             method: 'DELETE'
         })
-        .then((response) => {
-            if (response.ok) {
-                setEmployeeList(employeeList.filter(employee => employee.id !== id));
-            }
-        });
+        .then(() => {
+            setEmployeeList(employeeList.filter(employee => employee.id !== id));
+        })
     };
 
     const handleUpdateEmployee = (updatedEmployee) => {
@@ -57,28 +62,31 @@ function EmployeeCardList() {
     return (
         <div>
             <h1>Employees</h1>
-            <form onSubmit={handleAddEmployee}>
+            <form onSubmit={formik.handleSubmit}>
                 <input
+                    id="name"
                     type="text"
                     placeholder="Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
                 />
+                <p style={{ color: "red" }}>{formik.errors.name}</p>
                 <input
+                    id='hire_date'
                     type="date"
                     placeholder="Hire Date"
-                    value={hireDate}
-                    onChange={(e) => setHireDate(e.target.value)}
-                    required
+                    value={formik.values.hire_date}
+                    onChange={formik.handleChange}
                 />
+                <p style={{ color: "red" }}>{formik.errors.hire_date}</p>
                 <input
+                    id='manager_id'
                     type="number"
                     placeholder="Manager ID"
-                    value={managerId}
-                    onChange={(e) => setManagerId(e.target.value)}
-                    required
+                    value={formik.values.manager_id}
+                    onChange={formik.handleChange}
                 />
+                <p style={{ color: "red" }}>{formik.errors.manager_id}</p>
                 <button type="submit">Add Employee</button>
             </form>
 

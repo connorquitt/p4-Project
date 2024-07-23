@@ -1,12 +1,47 @@
 import React, { useState } from 'react';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 import '../index.css'; // Adjust the path as necessary
 import { NavLink } from 'react-router-dom';
 
 function MeetingCard({ meeting, onDelete, onUpdate }) {
     const [isEditing, setIsEditing] = useState(false);
-    const [newTopic, setNewTopic] = useState(meeting.topic);
-    const [newScheduledTime, setNewScheduledTime] = useState(meeting.scheduled_time);
-    const [newLocation, setNewLocation] = useState(meeting.location);
+
+    const formik = useFormik({
+        initialValues: {
+            topic: meeting.topic,
+            scheduled_time: meeting.scheduled_time,
+            location: meeting.location,
+        },
+        validationSchema: yup.object().shape({
+            topic: yup.string().required('Must enter a topic').max(50),
+            scheduled_time: yup.date().required('Must enter a valid date and time'),
+            location: yup.string().required('Must enter a location').max(50),
+        }),
+        onSubmit: (values) => {
+            fetch(`/meetings/${meeting.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            })
+            .then(async (response) => {
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error: ${response.statusText}\n${errorText}`);
+                }
+                return response.json();
+            })
+            .then((updatedMeeting) => {
+                onUpdate(updatedMeeting);
+                setIsEditing(false);
+            })
+            .catch((error) => {
+                console.error('Error updating meeting:', error);
+            });
+        },
+    });
 
     const handleDelete = () => {
         fetch(`/meetings/${meeting.id}`, {
@@ -26,51 +61,38 @@ function MeetingCard({ meeting, onDelete, onUpdate }) {
         setIsEditing(true);
     };
 
-    const handleSave = () => {
-        fetch(`/meetings/${meeting.id}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                topic: newTopic,
-                scheduled_time: newScheduledTime,
-                location: newLocation,
-            }),
-        })
-        .then((response) => response.json())
-        .then((updatedMeeting) => {
-            onUpdate(updatedMeeting);
-            setIsEditing(false);
-        })
-        .catch((error) => {
-            console.error('Error updating meeting:', error);
-        });
-    };
-
     return (
         <div key={meeting.id} className="card">
             {isEditing ? (
-                <div>
+                <form onSubmit={formik.handleSubmit}>
                     <input
                         type="text"
-                        value={newTopic}
-                        onChange={(e) => setNewTopic(e.target.value)}
+                        name="topic"
+                        value={formik.values.topic}
+                        onChange={formik.handleChange}
                         placeholder="Topic"
                     />
+                    {formik.errors.topic && <p style={{ color: 'red' }}>{formik.errors.topic}</p>}
+                    
                     <input
                         type="datetime-local"
-                        value={newScheduledTime}
-                        onChange={(e) => setNewScheduledTime(e.target.value)}
+                        name="scheduled_time"
+                        value={formik.values.scheduled_time.slice(0, 16)} // Adjust format for datetime-local input
+                        onChange={formik.handleChange}
                     />
+                    {formik.errors.scheduled_time && <p style={{ color: 'red' }}>{formik.errors.scheduled_time}</p>}
+                    
                     <input
                         type="text"
-                        value={newLocation}
-                        onChange={(e) => setNewLocation(e.target.value)}
+                        name="location"
+                        value={formik.values.location}
+                        onChange={formik.handleChange}
                         placeholder="Location"
                     />
-                    <button onClick={handleSave}>Save</button>
-                </div>
+                    {formik.errors.location && <p style={{ color: 'red' }}>{formik.errors.location}</p>}
+                    
+                    <button type="submit">Save</button>
+                </form>
             ) : (
                 <div>
                     <h3>Topic: {meeting.topic}</h3>
@@ -88,3 +110,4 @@ function MeetingCard({ meeting, onDelete, onUpdate }) {
 }
 
 export default MeetingCard;
+

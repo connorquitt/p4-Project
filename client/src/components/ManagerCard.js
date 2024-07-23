@@ -1,33 +1,105 @@
-import React from "react";
-import '../index.css';
+import React, { useState } from 'react';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+import '../index.css'; // Adjust the path as necessary
 
 function ManagerCard({ manager, onDelete, onUpdate }) {
-    
-    if (!manager) {
-        return null; // or return a loading state if manager is undefined
-    }
+    const [isEditing, setIsEditing] = useState(false);
+
+    const formik = useFormik({
+        initialValues: {
+            name: manager.name,
+            position: manager.position,
+        },
+        validationSchema: yup.object().shape({
+            name: yup.string().required('Must enter a name').max(50),
+            position: yup.string().required('Must enter a position').max(50),
+        }),
+        onSubmit: (values) => {
+            fetch(`/managers/${manager.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(values),
+            })
+            .then(async (response) => {
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error: ${response.statusText}\n${errorText}`);
+                }
+                return response.json();
+            })
+            .then((updatedManager) => {
+                onUpdate(updatedManager);
+                setIsEditing(false);
+            })
+            .catch((error) => {
+                console.error('Error updating manager:', error);
+            });
+        },
+    });
 
     const handleDelete = () => {
         fetch(`/managers/${manager.id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
         })
         .then((response) => {
             if (response.ok) {
                 onDelete(manager.id);
             }
+        })
+        .catch((error) => {
+            console.error('Error deleting manager:', error);
         });
+    };
+
+    const handleEdit = () => {
+        setIsEditing(true);
     };
 
     return (
         <div key={manager.id} className="card">
+            {isEditing ? (
+                <form onSubmit={formik.handleSubmit} className="manager-form">
+                    <div className="form-group">
+                        <label htmlFor="name">Name:</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formik.values.name}
+                            onChange={formik.handleChange}
+                            placeholder="Name"
+                        />
+                        {formik.errors.location && <p style={{ color: 'red' }}>{formik.errors.location}</p>}
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="position">Position:</label>
+                        <input
+                            type="text"
+                            name="position"
+                            value={formik.values.position}
+                            onChange={formik.handleChange}
+                            placeholder="Position"
+                        />
+                        {formik.errors.location && <p style={{ color: 'red' }}>{formik.errors.location}</p>}
+                    </div>
+                    <button type="submit">Save</button>
+                    <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
+                </form>
+            ) : (
                 <div>
                     <h3>Name: {manager.name}</h3>
                     <p>Position: {manager.position}</p>
+                    <button onClick={handleEdit}>Edit</button>
                     <button onClick={handleDelete}>Delete</button>
                 </div>
-            
+            )}
         </div>
     );
 }
 
 export default ManagerCard;
+
+
+
