@@ -32,11 +32,11 @@ function ManagerPage() {
     const formik = useFormik({
         initialValues: {
             name: '',
-            position: '',
+            department: '',
         },
         validationSchema: yup.object().shape({
             name: yup.string().required('Name is required').max(50, 'Name cannot exceed 50 characters'),
-            position: yup.string().required('Position is required').max(50, 'Position cannot exceed 50 characters'),
+            department: yup.string().required('department is required').max(50, 'department cannot exceed 50 characters'),
         }),
         onSubmit: (values) => {
             handleAdd(values);
@@ -77,14 +77,14 @@ function ManagerPage() {
                 ) : null}
                 <input
                     type="text"
-                    name="position"
-                    placeholder="Position"
-                    value={formik.values.position}
+                    name="department"
+                    placeholder="department"
+                    value={formik.values.department}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                 />
-                {formik.touched.position && formik.errors.position ? (
-                    <p style={{ color: 'red' }}>{formik.errors.position}</p>
+                {formik.touched.department && formik.errors.department ? (
+                    <p style={{ color: 'red' }}>{formik.errors.department}</p>
                 ) : null}
                 <button type="submit">Add Manager</button>
             </form>

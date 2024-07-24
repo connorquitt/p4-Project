@@ -16,9 +16,9 @@ with app.app_context():
 
 
      # Add managers
-    mg1 = Manager(name = 'Trooper Wright', position = 'Installation Manager')
-    mg2 = Manager(name = 'Brant Boisvert', position = 'Sound & Lighting Manager')
-    mg3 = Manager(name = 'Josh Burkhaulter', position = 'Programming Manager')
+    mg1 = Manager(name = 'Trooper Wright', department = 'Installation')
+    mg2 = Manager(name = 'Brant Boisvert', department = 'Sound & Lighting')
+    mg3 = Manager(name = 'Josh Burkhaulter', department = 'Programming')
     db.session.add_all([mg1, mg2, mg3])
     db.session.commit()
 

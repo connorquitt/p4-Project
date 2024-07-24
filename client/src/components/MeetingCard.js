@@ -97,7 +97,6 @@ function MeetingCard({ meeting, onDelete, onUpdate }) {
                 <div>
                     <h3>Topic: {meeting.topic}</h3>
                     <p>Scheduled Time: {new Date(meeting.scheduled_time).toLocaleString()}</p>
-                    <p>Location: {meeting.location}</p>
                     <NavLink to={`/meetings/${meeting.id}`}>
                         <button id={meeting.id}>More Info</button>
                     </NavLink>

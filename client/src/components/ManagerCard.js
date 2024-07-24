@@ -9,11 +9,11 @@ function ManagerCard({ manager, onDelete, onUpdate }) {
     const formik = useFormik({
         initialValues: {
             name: manager.name,
-            position: manager.position,
+            department: manager.department,
         },
         validationSchema: yup.object().shape({
             name: yup.string().required('Must enter a name').max(50),
-            position: yup.string().required('Must enter a position').max(50),
+            department: yup.string().required('Must enter a department').max(50),
         }),
         onSubmit: (values) => {
             fetch(`/managers/${manager.id}`, {
@@ -74,13 +74,13 @@ function ManagerCard({ manager, onDelete, onUpdate }) {
                         {formik.errors.location && <p style={{ color: 'red' }}>{formik.errors.location}</p>}
                     </div>
                     <div className="form-group">
-                        <label htmlFor="position">Position:</label>
+                        <label htmlFor="department">department:</label>
                         <input
                             type="text"
-                            name="position"
-                            value={formik.values.position}
+                            name="department"
+                            value={formik.values.department}
                             onChange={formik.handleChange}
-                            placeholder="Position"
+                            placeholder="department"
                         />
                         {formik.errors.location && <p style={{ color: 'red' }}>{formik.errors.location}</p>}
                     </div>
@@ -90,7 +90,7 @@ function ManagerCard({ manager, onDelete, onUpdate }) {
             ) : (
                 <div>
                     <h3>Name: {manager.name}</h3>
-                    <p>Position: {manager.position}</p>
+                    <p>department: {manager.department}</p>
                     <button onClick={handleEdit}>Edit</button>
                     <button onClick={handleDelete}>Delete</button>
                 </div>

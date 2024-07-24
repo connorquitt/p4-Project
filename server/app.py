@@ -91,7 +91,7 @@ def managers():
         data = request.get_json()
         new_manager = Manager(
             name=data.get('name'),
-            position=data.get('position'),
+            department=data.get('department'),
         )
 
         db.session.add(new_manager)
