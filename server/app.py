@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from datetime import datetime
-from models import db, Employee, Meeting, Manager, Review
+from models import db, Employee, Meeting, Manager, Review, EmployeeMeeting
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -277,6 +277,37 @@ def meetings_by_id(id):
             "message": "Meeting deleted."
         }
         return make_response(response_body, 200)
+    
+@app.route('/employee_meetings/<int:employee_id>/<int:meeting_id>', methods=['GET', 'PATCH', 'DELETE'])
+def employee_meetings_by_id(employee_id, meeting_id):
+    employee_meeting = EmployeeMeeting.query.filter_by(employee_id=employee_id, meeting_id=meeting_id).first()
+    
+    if employee_meeting is None:
+        response_body = {"message": "EmployeeMeeting not found in our database, please try again"}
+        return make_response(response_body, 404)
+    
+    if request.method == 'GET':
+        return make_response(employee_meeting.to_dict(), 200)
+        
+    elif request.method == 'PATCH':
+        data = request.get_json()
+        for attr, value in data.items():
+            if attr in ['role', 'rsvp']:
+                setattr(employee_meeting, attr, value)
+        db.session.add(employee_meeting)
+        db.session.commit()
+        return make_response(employee_meeting.to_dict(), 200)
+        
+    elif request.method == 'DELETE':
+        db.session.delete(employee_meeting)
+        db.session.commit()
+        response_body = {
+            "delete_successful": True,
+            "message": "EmployeeMeeting deleted."
+        }
+        return make_response(response_body, 200)
 
+
+    
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

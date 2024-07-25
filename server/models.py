@@ -11,14 +11,28 @@ metadata = MetaData(naming_convention={
 
 db = SQLAlchemy(metadata=metadata)
 
-# Association table to store many-to-many relationship between employees and meetings
-employee_meetings = db.Table(
-    'employee_meetings',
-    metadata,
-    db.Column('employee_id', db.Integer, db.ForeignKey('employees.id'), primary_key=True),
-    db.Column('meeting_id', db.Integer, db.ForeignKey('meetings.id'), primary_key=True),
-    db.Column('role', db.String)
-)
+class EmployeeMeeting(db.Model, SerializerMixin):
+    __tablename__ = 'employee_meetings'
+
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), primary_key=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'), primary_key=True)
+    role = db.Column(db.String)
+    rsvp = db.Column(db.Boolean)
+
+    role = db.relationship('Employee', back_populates='employee_meetings')
+    employee = db.relationship('Employee', back_populates='employee_meetings')
+    meeting = db.relationship('Meeting', back_populates='employee_meetings')
+
+    def to_dict(self):
+        return {
+            'employee_id': self.employee_id,
+            'meeting_id': self.meeting_id,
+            'role': self.role,
+            'rsvp': self.rsvp,
+        }
+
+    def __repr__(self):
+        return f'<EmployeeMeeting Employee: {self.employee_id}, Meeting: {self.meeting_id}>'
 
 class Employee(db.Model, SerializerMixin):
     __tablename__ = 'employees'
@@ -32,7 +46,8 @@ class Employee(db.Model, SerializerMixin):
 
     manager = db.relationship('Manager', back_populates='employees')
     reviews = db.relationship('Review', back_populates='employee')
-    meetings = db.relationship('Meeting', secondary=employee_meetings, back_populates='employees')
+    employee_meetings = db.relationship('EmployeeMeeting', back_populates='employee')
+    meetings = association_proxy('employee_meetings', 'meeting')
     assignments = db.relationship('Assignment', back_populates='employee', cascade='all, delete-orphan')
     projects = association_proxy('assignments', 'project', creator=lambda project_obj: Assignment(project=project_obj))
 
@@ -48,7 +63,6 @@ class Employee(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Employee {self.id}, {self.name}, {self.hire_date}>'
 
-    
     @validates('name')
     def validate_name(self, key, username):
         if not isinstance(username, str):
@@ -64,13 +78,10 @@ class Employee(db.Model, SerializerMixin):
 class Manager(db.Model, SerializerMixin):
     __tablename__ = 'managers'
 
-    ##serialize_rules = ('-employees.manager',)
-
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     department = db.Column(db.String, nullable=False)
 
-    # Relationship mapping the manager to related employees
     employees = db.relationship('Employee', back_populates='manager')
 
     def to_dict(self):
@@ -105,7 +116,8 @@ class Meeting(db.Model, SerializerMixin):
     scheduled_time = db.Column(db.DateTime)
     location = db.Column(db.String)
 
-    employees = db.relationship('Employee', secondary=employee_meetings, back_populates='meetings')
+    employee_meetings = db.relationship('EmployeeMeeting', back_populates='meeting')
+    employees = association_proxy('employee_meetings', 'employee')
 
     def to_dict(self):
         return {
@@ -118,7 +130,6 @@ class Meeting(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<Meeting {self.id}, {self.topic}, {self.scheduled_time}, {self.location}>'
-
 
     @validates('topic')
     def validate_topic(self, key, topic):
@@ -137,7 +148,6 @@ class Meeting(db.Model, SerializerMixin):
         if not isinstance(location, str):
             raise ValueError('Invalid location')
         return location
-
 
 
 

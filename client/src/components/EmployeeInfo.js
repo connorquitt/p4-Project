@@ -1,10 +1,6 @@
-
-
-
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import MeetingCard from './MeetingCard';
-import '../index.css'; // Adjust the path as necessary
+import MeetingForm from './MeetingForm'; // Adjust the path as necessary
 
 const EmployeeInfo = () => {
   const params = useParams();
@@ -16,29 +12,9 @@ const EmployeeInfo = () => {
       .then(activeEmployee => setEmployee(activeEmployee));
   }, [params.id]);
 
-  function EmployeeMeetings() {
-    return employee.meetings.map((meeting) => (
-      <div className='employee-meeting' key={meeting.id}>
-        <h3>Topic: {meeting.topic}</h3>
-        <p>{employee.name} role: </p>
-        
-        <label>
-          Role:
-          <input
-            type="text"
-          />
-        </label>
-        
-        <label>
-          RSVP:
-          <select>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </label>
-      </div>
-    ));
-  }
+  const handleSave = (updatedEmployee) => {
+    setEmployee(updatedEmployee);
+  };
 
   return (
     <div>
@@ -49,7 +25,15 @@ const EmployeeInfo = () => {
           <p>Manager: {employee.manager.name}</p>
           <p>Department: {employee.manager.department}</p>
           <p>Meetings:</p>
-          <EmployeeMeetings />
+          {employee.meetings.map((meeting) => (
+            <MeetingForm
+              key={meeting.id}
+              meeting={meeting}
+              meetings={employee.meetings}
+              employeeId={params.id}
+              onSave={handleSave}
+            />
+          ))}
         </div>
       ) : (
         <div>Employee not found</div>
@@ -59,3 +43,4 @@ const EmployeeInfo = () => {
 };
 
 export default EmployeeInfo;
+
