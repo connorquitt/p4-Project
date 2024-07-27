@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from datetime import datetime
-from models import db, Employee, Meeting, Manager, Review, EmployeeMeeting
+from models import db, Employee, Meeting, Manager, EmployeeMeeting
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -133,91 +133,7 @@ def manager_by_id(id):
         }
             return make_response(response_body, 200)
             
-@app.route('/reviews', methods=['GET', 'POST'])
-def reviews():
 
-    if request.method == 'GET':
-        reviews = Review.query.all()
-
-        return make_response(
-            jsonify([review.to_dict() for review in reviews]), 200
-        )
-
-    elif request.method == 'POST':
-        data = request.get_json()
-        new_review = Review(
-            year=data.get("year"),
-            summary=data.get("summary"),
-            employee_id=data.get("employee_id"),
-        )
-
-        db.session.add(new_review)
-        db.session.commit()
-
-        review_dict = new_review.to_dict()
-
-        response = make_response(
-            review_dict,
-            201
-        )
-
-        return response
-
-@app.route('/reviews/<int:id>', methods=['GET', 'PATCH', 'DELETE'])
-def review_by_id(id):
-    review = Review.query.filter(Review.id == id).first()
-
-    if review == None:
-        response_body = {
-            "message": "This record does not exist in our database. Please try again."
-        }
-        response = make_response(response_body, 404)
-
-        return response
-
-    else:
-        if request.method == 'GET':
-            review_dict = review.to_dict()
-
-            response = make_response(
-                review_dict,
-                200
-            )
-
-            return response
-
-        elif request.method == 'PATCH':
-            data = request.get_json()
-            for attr, value in data.items():
-                setattr(review, attr, value)
-
-            db.session.add(review)
-            db.session.commit()
-
-            review_dict = review.to_dict()
-
-            response = make_response(
-                review_dict,
-                200
-            )
-
-            return response
-
-        elif request.method == 'DELETE':
-            db.session.delete(review)
-            db.session.commit()
-
-            response_body = {
-                "delete_successful": True,
-                "message": "Review deleted."
-            }
-
-            response = make_response(
-                response_body,
-                200
-            )
-
-            return response
 
 @app.route('/meetings', methods=['GET', 'POST'])
 def meetings():
@@ -291,9 +207,8 @@ def employee_meetings_by_id(employee_id, meeting_id):
         
     elif request.method == 'PATCH':
         data = request.get_json()
-        for attr, value in data.items():
-            if attr in ['role', 'rsvp']:
-                setattr(employee_meeting, attr, value)
+        if 'rsvp' in data:
+            employee_meeting.rsvp = data['rsvp']
         db.session.add(employee_meeting)
         db.session.commit()
         return make_response(employee_meeting.to_dict(), 200)
@@ -306,6 +221,7 @@ def employee_meetings_by_id(employee_id, meeting_id):
             "message": "EmployeeMeeting deleted."
         }
         return make_response(response_body, 200)
+
 
 
     

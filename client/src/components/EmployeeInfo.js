@@ -9,38 +9,50 @@ const EmployeeInfo = () => {
   useEffect(() => {
     fetch(`http://localhost:4000/employees/${params.id}`)
       .then(res => res.json())
-      .then(activeEmployee => setEmployee(activeEmployee));
+      .then(activeEmployee => {
+        if (!activeEmployee.manager) {
+          activeEmployee.manager = { name: 'N/A', department: 'N/A' };
+        }
+        if (!activeEmployee.meetings) {
+          activeEmployee.meetings = [];
+        }
+        console.log('Fetched employee:', activeEmployee);
+        setEmployee(activeEmployee);
+      });
   }, [params.id]);
 
-  const handleSave = (updatedEmployee) => {
-    setEmployee(updatedEmployee);
+  const handleSave = (e) => {
+    console.log('Handle save called with:', e.target);
+    //setEmployee(updatedEmployee);
   };
+
+  if (!employee) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
-      {employee ? (
-        <div>
-          <h2>{employee.name}</h2>
-          <p>Hire Date: {employee.hire_date}</p>
-          <p>Manager: {employee.manager.name}</p>
-          <p>Department: {employee.manager.department}</p>
-          <p>Meetings:</p>
-          {employee.meetings.map((meeting) => (
-            <MeetingForm
-              key={meeting.id}
-              meeting={meeting}
-              meetings={employee.meetings}
-              employeeId={params.id}
-              onSave={handleSave}
-            />
-          ))}
-        </div>
-      ) : (
-        <div>Employee not found</div>
-      )}
+      <div className='card'>
+        <h2>{employee.name}</h2>
+        <p>Hire Date: {employee.hire_date}</p>
+        <p>Manager: {employee.manager.name}</p>
+        <p>Department: {employee.manager.department}</p>
+        <p>Meetings:</p>
+        {employee.meetings.map((meeting) => (
+          <MeetingForm
+            key={meeting.id}
+            meeting={meeting}
+            meetings={employee.meetings}
+            employeeId={employee.id}
+            onSave={handleSave}
+          />
+        ))}
+      </div>
     </div>
   );
 };
 
 export default EmployeeInfo;
+
+
 

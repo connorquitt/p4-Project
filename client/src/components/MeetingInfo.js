@@ -24,10 +24,10 @@ const MeetingInfo = () => {
   return (
     <div>
       {meeting ? (
-        <div>
+        <div className='card'>
           <h2>{meeting.topic}</h2>
-          <p>Scheduled Time:</p>
-          <p>Location: </p>
+          <p>Scheduled Time: {meeting.scheduled_time}</p>
+          <p>Location: {meeting.location}</p>
           <p>Attendees: <EmployeesByMeeting /></p>
         </div>
       ) : (
