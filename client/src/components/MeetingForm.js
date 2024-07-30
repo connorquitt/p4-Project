@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-const MeetingForm = ({ meeting, meetings, employeeId, onSave }) => {
+const MeetingForm = ({ meeting }) => {
   const formik = useFormik({
     initialValues: {
       rsvp: meeting.rsvp !== undefined ? meeting.rsvp : "true",
@@ -11,28 +11,16 @@ const MeetingForm = ({ meeting, meetings, employeeId, onSave }) => {
       rsvp: yup.boolean().required('RSVP is required'),
     }),
     onSubmit: (values) => {
-      const updatedMeetings = meetings.map(m => 
-        m.id === meeting.id ? { ...m, ...values } : m
-      );
 
-      fetch(`http://localhost:4000/employee_meetings/${employeeId}/${meeting.id}`, {
+      fetch(`http://localhost:4000/employee_meetings/${meeting.employee_id}/${meeting.meeting_id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ rsvp: values.rsvp }),  // Send RSVP value within a dictionary
+        body: JSON.stringify({ rsvp: values.rsvp }),
       })
-      .then(async (response) => {
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`Error: ${response.statusText}\n${errorText}`);
-        }
-        return response.json();
-      })
-      .then((updatedEmployee) => {
-        console.log('Updated employee:', updatedEmployee);
-        onSave(updatedEmployee);
-      })
+      .then(res => res.json())
+      .then(updatedEmployee => console.log(`ID: ${updatedEmployee.employee_id} | Updated Employee: ${updatedEmployee.employee} | RSVP: ${updatedEmployee.rsvp}`))
       .catch((error) => {
         console.error('Error updating employee:', error);
       });
@@ -40,12 +28,12 @@ const MeetingForm = ({ meeting, meetings, employeeId, onSave }) => {
   });
 
   return (
-    <form onSubmit={formik.handleSubmit} >
+    <form onSubmit={formik.handleSubmit} className='employee-meeting'>
       <label>
-        RSVP:
+        Meeting: {meeting.meeting} | RSVP:
         <select
           name="rsvp"
-          value={formik.values.rsvp.toString()} // Convert boolean to string for select input
+          value={formik.values.rsvp.toString()}
           onChange={(e) => formik.setFieldValue('rsvp', e.target.value === 'true')}
           onBlur={formik.handleBlur}
         >
@@ -57,6 +45,7 @@ const MeetingForm = ({ meeting, meetings, employeeId, onSave }) => {
         )}
       </label>
       <button type="submit">Save</button>
+      <div><p>hi</p></div>
     </form>
   );
 };

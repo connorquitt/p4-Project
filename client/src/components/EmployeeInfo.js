@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import MeetingForm from './MeetingForm'; // Adjust the path as necessary
+import MeetingForm from './MeetingForm';
 
 const EmployeeInfo = () => {
   const params = useParams();
@@ -13,18 +13,12 @@ const EmployeeInfo = () => {
         if (!activeEmployee.manager) {
           activeEmployee.manager = { name: 'N/A', department: 'N/A' };
         }
-        if (!activeEmployee.meetings) {
-          activeEmployee.meetings = [];
-        }
         console.log('Fetched employee:', activeEmployee);
         setEmployee(activeEmployee);
       });
   }, [params.id]);
 
-  const handleSave = (e) => {
-    console.log('Handle save called with:', e.target);
-    //setEmployee(updatedEmployee);
-  };
+  
 
   if (!employee) {
     return <div>Loading...</div>;
@@ -32,22 +26,19 @@ const EmployeeInfo = () => {
 
   return (
     <div>
-      <div className='card'>
+      <div className='employee-meeting' key={employee.id}>
         <h2>{employee.name}</h2>
-        <p>Hire Date: {employee.hire_date}</p>
-        <p>Manager: {employee.manager.name}</p>
-        <p>Department: {employee.manager.department}</p>
-        <p>Meetings:</p>
-        {employee.meetings.map((meeting) => (
+        <h4>Hire Date: {employee.hire_date}</h4>
+        <h4>Manager: {employee.manager.name}</h4>
+        <h4>Department: {employee.manager.department}</h4>
+        <h4>Meetings:</h4>
+      </div>
+        {employee.employee_meetings.map((emp_meeting) => (
           <MeetingForm
-            key={meeting.id}
-            meeting={meeting}
-            meetings={employee.meetings}
-            employeeId={employee.id}
-            onSave={handleSave}
+            key={emp_meeting.meeting_id}
+            meeting={emp_meeting}
           />
         ))}
-      </div>
     </div>
   );
 };

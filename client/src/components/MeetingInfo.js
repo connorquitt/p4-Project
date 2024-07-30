@@ -13,8 +13,8 @@ const MeetingInfo = () => {
   }, [params.id]);
 
   function EmployeesByMeeting() {
-    return meeting.employees.map((employee) => (
-        <li key={employee}>{employee}</li>
+    return meeting.employee_meetings.map((emp_meeting) => (
+        <li key={emp_meeting.id}>{emp_meeting.employee} | RSVP: {emp_meeting.rsvp ? '✅': '❌'}</li>
     )
 
     )

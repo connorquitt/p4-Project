@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import '../index.css'; // Adjust the path as necessary
@@ -91,6 +92,9 @@ function ManagerCard({ manager, onDelete, onUpdate }) {
                 <div>
                     <h3>Name: {manager.name}</h3>
                     <p>department: {manager.department}</p>
+                    <NavLink to={`/managers/${manager.id}`}>
+                        <button id={manager.id}>View Staff</button>
+                    </NavLink>
                     <button onClick={handleEdit}>Edit</button>
                     <button onClick={handleDelete}>Delete</button>
                 </div>

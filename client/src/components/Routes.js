@@ -6,6 +6,7 @@ import ManagerCardList from './ManagerPage';
 import EmployeeCardList from './EmployeePage';
 import EmployeeInfo from './EmployeeInfo';
 import MeetingInfo from './MeetingInfo';
+import ManagerInfo from './ManagerMoreInfo'
 
 const Routes = ({ isLoggedIn, handleLogin }) => {
   return (
@@ -29,6 +30,10 @@ const Routes = ({ isLoggedIn, handleLogin }) => {
 
       <Route path="/meetings">
         {isLoggedIn ? <MeetingPage /> : <Redirect to="/login" />}
+      </Route>
+
+      <Route path='/managers/:id'>
+        {isLoggedIn ? <ManagerInfo /> : <Redirect to="/login" />}
       </Route>
 
       <Route path="/managers">

@@ -20,10 +20,10 @@ with app.app_context():
     db.session.commit()
 
     # Add employees
-    e1 = Employee(name="Uri Lee", hire_date=datetime.datetime(2022, 5, 17), manager=mg1)
-    e2 = Employee(name="Tristan Tal", hire_date=datetime.datetime(2020, 1, 30), manager=mg1)
-    e3 = Employee(name="Sasha Hao", hire_date=datetime.datetime(2021, 12, 1), manager=mg3)
-    e4 = Employee(name="Taylor Jai", hire_date=datetime.datetime(2015, 1, 2), manager=mg2)
+    e1 = Employee(name="Katie Swansong", hire_date=datetime.datetime(2022, 5, 17), manager=mg1)
+    e2 = Employee(name="Tristan Yang", hire_date=datetime.datetime(2020, 1, 30), manager=mg1)
+    e3 = Employee(name="Mallory Jewell", hire_date=datetime.datetime(2021, 12, 1), manager=mg3)
+    e4 = Employee(name="Matt Herndon", hire_date=datetime.datetime(2015, 1, 2), manager=mg2)
     db.session.add_all([e1, e2, e3, e4])
     db.session.commit()
 

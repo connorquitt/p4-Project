@@ -14,18 +14,25 @@ db = SQLAlchemy(metadata=metadata)
 class EmployeeMeeting(db.Model, SerializerMixin):
     __tablename__ = 'employee_meetings'
 
-    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), primary_key=True)
-    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'), primary_key=True)
+    serialize_rules = ('-meetings.employee_meetings', '-employees.employee_meetings',)
+
+
+    id = db.Column(db.Integer, primary_key=True)
     rsvp = db.Column(db.Boolean)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
+    meeting_id = db.Column(db.Integer, db.ForeignKey('meetings.id'))
 
     employee = db.relationship('Employee', back_populates='employee_meetings')
     meeting = db.relationship('Meeting', back_populates='employee_meetings')
 
     def to_dict(self):
         return {
+            'id': self.id,
+            'rsvp': self.rsvp,
             'employee_id': self.employee_id,
             'meeting_id': self.meeting_id,
-            'rsvp': self.rsvp,
+            'employee': self.employee.name,
+            'meeting': self.meeting.topic
         }
 
     def __repr__(self):
@@ -34,7 +41,7 @@ class EmployeeMeeting(db.Model, SerializerMixin):
 class Employee(db.Model, SerializerMixin):
     __tablename__ = 'employees'
 
-    serialize_rules = ('-meetings.employees')
+    serialize_rules = ('-employee_meetings.employees',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -43,7 +50,6 @@ class Employee(db.Model, SerializerMixin):
 
     manager = db.relationship('Manager', back_populates='employees')
     employee_meetings = db.relationship('EmployeeMeeting', back_populates='employee')
-    meetings = association_proxy('employee_meetings', 'meeting', creator=lambda meeting_obj: EmployeeMeeting(meeting=meeting_obj))
 
     def to_dict(self):
         return {
@@ -51,17 +57,19 @@ class Employee(db.Model, SerializerMixin):
             'name': self.name,
             'hire_date': self.hire_date,
             'manager': self.manager.to_dict() if self.manager else None,
-            'meetings': [meeting.to_dict() for meeting in self.meetings]
+            'employee_meetings': [emp_meeting.to_dict() for emp_meeting in self.employee_meetings],
         }
 
     def __repr__(self):
         return f'<Employee {self.id}, {self.name}, {self.hire_date}>'
 
     @validates('name')
-    def validate_name(self, key, username):
-        if not isinstance(username, str):
+    def validate_name(self, key, name):
+        if not isinstance(name, str):
             raise ValueError('Invalid name')
-        return username
+        if len(name) <= 3:
+            raise ValueError('Name must be at least 3 characters')
+        return name
     
     @validates('manager_id')
     def validate_manager_id(self, key, manager_id):
@@ -69,41 +77,11 @@ class Employee(db.Model, SerializerMixin):
             raise ValueError('Invalid manager ID')
         return manager_id
 
-class Manager(db.Model, SerializerMixin):
-    __tablename__ = 'managers'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    department = db.Column(db.String, nullable=False)
-
-    employees = db.relationship('Employee', back_populates='manager')
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'department': self.department
-        }
-
-    def __repr__(self):
-        return f'<Manager {self.id}, {self.name}, {self.department}>'
-
-    @validates('name')
-    def validate_name(self, key, name):
-        if not isinstance(name, str):
-            raise ValueError('Invalid name')
-        return name
-
-    @validates('department')
-    def validate_department(self, key, department):
-        if not isinstance(department, str):
-            raise ValueError('Invalid department')
-        return department
 
 class Meeting(db.Model, SerializerMixin):
     __tablename__ = 'meetings'
 
-    serialize_rules = ('-employees.meetings',)  # Avoid recursion by excluding employees
+    serialize_rules = ('-employee_meetings.meetings',)  # Avoid recursion by excluding employees
 
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String)
@@ -111,7 +89,6 @@ class Meeting(db.Model, SerializerMixin):
     location = db.Column(db.String)
 
     employee_meetings = db.relationship('EmployeeMeeting', back_populates='meeting')
-    employees = association_proxy('employee_meetings', 'employee', creator=lambda employee_obj: EmployeeMeeting(employee=employee_obj))
 
     def to_dict(self):
         return {
@@ -119,7 +96,7 @@ class Meeting(db.Model, SerializerMixin):
             'topic': self.topic,
             'scheduled_time': self.scheduled_time,
             'location': self.location,
-            'employees': [employee.name for employee in self.employees]
+            'employee_meetings': [emp_meeting.to_dict() for emp_meeting in self.employee_meetings],
         }
 
     def __repr__(self):
@@ -144,6 +121,37 @@ class Meeting(db.Model, SerializerMixin):
         return location
 
 
+class Manager(db.Model, SerializerMixin):
+    __tablename__ = 'managers'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    department = db.Column(db.String, nullable=False)
+
+    employees = db.relationship('Employee', back_populates='manager')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'department': self.department,
+            'employees': [employee.name for employee in self.employees]
+        }
+
+    def __repr__(self):
+        return f'<Manager {self.id}, {self.name}, {self.department}>'
+
+    @validates('name')
+    def validate_name(self, key, name):
+        if not isinstance(name, str):
+            raise ValueError('Invalid name')
+        return name
+
+    @validates('department')
+    def validate_department(self, key, department):
+        if not isinstance(department, str):
+            raise ValueError('Invalid department')
+        return department
 
 
 
