@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-const MeetingForm = ({ meeting }) => {
+const EmployeeMeetingRSVP = ({ meeting }) => {
   const formik = useFormik({
     initialValues: {
       rsvp: meeting.rsvp !== undefined ? meeting.rsvp : "true",
@@ -45,10 +45,9 @@ const MeetingForm = ({ meeting }) => {
         )}
       </label>
       <button type="submit">Save</button>
-      <div><p>hi</p></div>
     </form>
   );
 };
 
-export default MeetingForm;
+export default EmployeeMeetingRSVP;
 

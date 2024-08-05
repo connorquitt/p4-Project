@@ -4,9 +4,9 @@ import Login from './Login';
 import MeetingPage from './MeetingPage';
 import ManagerCardList from './ManagerPage';
 import EmployeeCardList from './EmployeePage';
-import EmployeeInfo from './EmployeeInfo';
-import MeetingInfo from './MeetingInfo';
-import ManagerInfo from './ManagerMoreInfo'
+import EmployeeMoreInfo from './EmployeeMoreInfo';
+import MeetingMoreInfo from './MeetingMoreInfo';
+import ManagerMoreInfo from './ManagerMoreInfo'
 
 const Routes = ({ isLoggedIn, handleLogin }) => {
   return (
@@ -17,7 +17,7 @@ const Routes = ({ isLoggedIn, handleLogin }) => {
       </Route>
 
       <Route path='/employees/:id'>
-        {isLoggedIn ? <EmployeeInfo /> : <Redirect to="/login" />}
+        {isLoggedIn ? <EmployeeMoreInfo /> : <Redirect to="/login" />}
       </Route>
 
       <Route path="/employees">
@@ -25,7 +25,7 @@ const Routes = ({ isLoggedIn, handleLogin }) => {
       </Route>
 
       <Route path='/meetings/:id'>
-        {isLoggedIn ? <MeetingInfo /> : <Redirect to="/login" />}
+        {isLoggedIn ? <MeetingMoreInfo /> : <Redirect to="/login" />}
       </Route>
 
       <Route path="/meetings">
@@ -33,7 +33,7 @@ const Routes = ({ isLoggedIn, handleLogin }) => {
       </Route>
 
       <Route path='/managers/:id'>
-        {isLoggedIn ? <ManagerInfo /> : <Redirect to="/login" />}
+        {isLoggedIn ? <ManagerMoreInfo /> : <Redirect to="/login" />}
       </Route>
 
       <Route path="/managers">

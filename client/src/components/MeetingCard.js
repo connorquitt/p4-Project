@@ -92,6 +92,7 @@ function MeetingCard({ meeting, onDelete, onUpdate }) {
                     {formik.errors.location && <p style={{ color: 'red' }}>{formik.errors.location}</p>}
                     
                     <button type="submit">Save</button>
+                    <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
                 </form>
             ) : (
                 <div>

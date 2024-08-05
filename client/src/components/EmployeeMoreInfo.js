@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import MeetingForm from './MeetingForm';
+import EmployeeMeetingRSVP from './EmployeeMeetingRSVP';
 
-const EmployeeInfo = () => {
+const EmployeeMoreInfo = () => {
   const params = useParams();
   const [employee, setEmployee] = useState(null);
 
@@ -34,7 +34,7 @@ const EmployeeInfo = () => {
         <h4>Meetings:</h4>
       </div>
         {employee.employee_meetings.map((emp_meeting) => (
-          <MeetingForm
+          <EmployeeMeetingRSVP
             key={emp_meeting.meeting_id}
             meeting={emp_meeting}
           />
@@ -43,7 +43,7 @@ const EmployeeInfo = () => {
   );
 };
 
-export default EmployeeInfo;
+export default EmployeeMoreInfo;
 
 
 

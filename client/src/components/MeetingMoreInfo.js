@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-const MeetingInfo = () => {
+const MeetingMoreInfo = () => {
   const params = useParams()
   const [meeting, setMeeting] = useState(null);
 
@@ -37,4 +37,4 @@ const MeetingInfo = () => {
   );
 };
 
-export default MeetingInfo;
+export default MeetingMoreInfo;

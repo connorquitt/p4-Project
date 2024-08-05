@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-function ManagerInfo() {
+function ManagerMoreInfo() {
   const params = useParams();
   const [manager, setManager] = useState()
 
@@ -25,4 +25,4 @@ function ManagerInfo() {
     )
 }
 
-export default ManagerInfo
+export default ManagerMoreInfo
